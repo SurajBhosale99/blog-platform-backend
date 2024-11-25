@@ -1,8 +1,14 @@
 package com.example.blog.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +23,7 @@ import com.example.blog.service.PostService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/blogs")
@@ -30,8 +37,16 @@ public class PostController {
     @Operation(summary = "Add a new blog post", description = "Creates a new blog post in the system")
 
 	@PostMapping
-    public ResponseEntity<Post> addBlog(@RequestBody Post post) {
-        Post savedBlog = blogService.addBlog(post);
+	@PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Post> addBlog(@RequestBody Post post , HttpServletRequest request) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (authentication != null) ? authentication.getName() : null;
+    	System.out.print("Username :" +username);
+    	
+    	if (username == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Post savedBlog = blogService.addBlog(username, post);
         return ResponseEntity.ok(savedBlog);
     }
 
@@ -53,8 +68,17 @@ public class PostController {
     @Operation(summary = "Add Comment on post", description = "Use can add comments on post and multiple times.")
     @PostMapping("/{postId}/comments")
     public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (authentication != null) ? authentication.getName() : null;
         Comment savedComment = commentService.addComment(postId, comment);
         return ResponseEntity.ok(savedComment);
+    }
+    
+    @Operation(summary = "Fetch comments by post ID", description = "Retrieve all comments associated with a specific blog post")
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Long postId) {
+        List<Comment> comments = commentService.getCommentsByPostId(postId);
+        return ResponseEntity.ok(comments);
     }
 
 }

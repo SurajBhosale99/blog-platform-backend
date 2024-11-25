@@ -7,15 +7,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.blog.entity.Post;
+import com.example.blog.entity.User;
 import com.example.blog.repository.PostRepository;
+import com.example.blog.repository.UserRepository;
 
 @Service
 public class PostService {
 
 	@Autowired
     private PostRepository blogRepository;
+	
+	@Autowired
+	private final UserRepository userRepository;
 
-    public Post addBlog(Post blog) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
+        this.blogRepository = postRepository;
+        this.userRepository = userRepository;
+    }
+
+
+    public Post addBlog(String email,Post blog) {
+    	
+    	User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    	blog.setUser(user);
         blog.setCreatedAt(LocalDateTime.now());
         blog.setUpdatedAt(LocalDateTime.now());
         return blogRepository.save(blog);
