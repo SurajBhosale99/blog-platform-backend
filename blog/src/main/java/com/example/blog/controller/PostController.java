@@ -1,8 +1,11 @@
 package com.example.blog.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,6 +58,13 @@ public class PostController {
     public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment) {
         Comment savedComment = commentService.addComment(postId, comment);
         return ResponseEntity.ok(savedComment);
+    }
+    
+    @Operation(summary = "Fetch comments by post ID", description = "Retrieve all comments associated with a specific blog post")
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Long postId) {
+        List<Comment> comments = commentService.getCommentsByPostId(postId);
+        return ResponseEntity.ok(comments);
     }
 
 }

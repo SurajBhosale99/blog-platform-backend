@@ -6,6 +6,7 @@ import com.example.blog.repository.CommentRepository;
 import com.example.blog.repository.PostRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,9 @@ public class CommentService {
         comment.setPost(post);
         comment.setCreatedAt(LocalDateTime.now());
         return commentRepository.save(comment);
+    }
+    
+    public List<Comment> getCommentsByPostId(Long postId) {
+        return commentRepository.findByPostId(postId);
     }
 }
