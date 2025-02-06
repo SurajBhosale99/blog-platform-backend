@@ -34,6 +34,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
         logger.info("Signup Request Received: Email={}, Password={}", request.getEmail(), request.getPassword());
+        System.out.println("Name");
 
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Email is required!");
@@ -49,6 +50,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         return userService.loginUser(request);
+        
     }
+   
 }
 
